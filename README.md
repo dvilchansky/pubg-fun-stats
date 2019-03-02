@@ -4,4 +4,4 @@ Build the image
 
 Run the image 
 
-    docker run --rm -p 8080:8080 go-pubg
+    docker run --rm -i -t -p 8080:8080 go-pubg
