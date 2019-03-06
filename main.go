@@ -1,16 +1,11 @@
 package main
 
-import "github.com/kataras/iris"
-
+import (
+	"github.com/dvilchansky/gopubg"
+	"pubg-fun-stats/settings"
+)
 
 func main() {
-
-	app := iris.Default()
-	app.Get("/ping", func(ctx iris.Context) {
-		ctx.JSON(iris.Map{
-			"message": "pong",
-		})
-	})
-	// listen and serve on http://0.0.0.0:8080.
-	app.Run(iris.Addr(":8080"))
+	api := gopubg.NewAPI(settings.Key)
+	api.RequestSinglePlayerByName(settings.Region, settings.Username)
 }
