@@ -1,0 +1,14 @@
+version: '3.1'
+
+services:
+  mariadb:
+    image: mariadb:latest
+    volumes:
+      - ./docker/mariadb:/docker-entrypoint-initdb.d/
+      - ./docker/var/mariadb:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    ports:
+      - 3307:3306
+    command:
+      "mysqld --innodb-flush-method=fsync"
