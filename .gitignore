@@ -2,3 +2,4 @@
 .idea
 /settings/main.go
 docker
+tmp
