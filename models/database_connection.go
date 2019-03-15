@@ -1,10 +1,10 @@
-package db
+package models
 
 import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"pubg-fun-stats/settings"
+	"pubg-fun-stats/app/settings"
 )
 
 var Connection *sql.DB

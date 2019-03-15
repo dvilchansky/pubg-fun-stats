@@ -1,5 +1,8 @@
 *.iml
 .idea
-/settings/main.go
+main
+settings/main.go
 docker
+node_modules
 tmp
+main

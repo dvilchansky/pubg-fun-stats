@@ -1,9 +1,4 @@
-package dbplayers
-
-import (
-	"github.com/dvilchansky/gopubg/models/player"
-	"pubg-fun-stats/db"
-)
+package models
 
 type Player struct {
 	ID         int    `json:"id"`

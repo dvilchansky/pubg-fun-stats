@@ -1,12 +1,12 @@
-package dbmatches
+package models
 
 import (
+	"fmt"
 	"github.com/dvilchansky/gopubg"
-	"pubg-fun-stats/db"
 )
 
 func InsertMatch(a *gopubg.API, matchID string) {
-	match, err := a.RequestMatch("steam-eu", matchID)
+	match, err := a.RequestMatch("steam", matchID)
 	if err != nil {
 		panic(err.Error())
 	}
