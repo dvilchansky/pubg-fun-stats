@@ -32,7 +32,7 @@
         methods: {
             getMatches: async function () {
                 if (this.username) {
-                    return this.matches = (await axios.post('/players/' + this.username)).data.data;
+                    return this.matches = (await axios.post('api/players/' + this.username)).data.data;
                 }
             }
         }

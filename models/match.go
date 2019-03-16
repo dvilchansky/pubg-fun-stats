@@ -1,8 +1,8 @@
-package funstats
+package models
 
 import "time"
 
-type SQLMatch struct {
+type Match struct {
 	MatchID   string    `json:"match_id"`
 	ShardID   string    `json:"shard_id"`
 	CreatedAt time.Time `json:"created_at"`

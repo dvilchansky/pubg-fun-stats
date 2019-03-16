@@ -1,44 +1,54 @@
 package main
 
 import (
+	"database/sql"
 	"github.com/dvilchansky/gopubg"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/kataras/iris"
-	"github.com/kataras/iris/websocket"
+	"github.com/kataras/iris/mvc"
+	"log"
+	"os"
 	"pubg-fun-stats/controllers"
-	"pubg-fun-stats/funstats"
+	"pubg-fun-stats/repositories"
+	"pubg-fun-stats/services"
 	"pubg-fun-stats/settings"
-	"runtime"
 )
 
 var (
-	ConcurencyLevel = runtime.NumCPU() * 22
-	API             = gopubg.NewAPI(settings.API_KEY)
+	API    = gopubg.NewAPI(settings.API_KEY)
+	DBConn *sql.DB
 )
 
+func match(app *mvc.Application) {
+	repo := repositories.NewMatchSQLRepository(DBConn)
+	matchService := services.NewMatchService(repo, API)
+	app.Register(matchService)
+	app.Handle(new(controllers.MatchController))
+}
+
+//func GetMatches(api *gopubg.API, playerName string) []*funstats.SQLMatch {
+//	player, err := api.RequestPlayerByName(playerName)
+//	if err != nil {
+//		panic(err.Error())
+//	}
+//	return controllers.ProcessMatches(ConcurencyLevel, api, player.Matches)
+//}
+
 func main() {
-	r := iris.Default()
-	r.Post("/players/:name", PlayersHandler)
-	r.StaticWeb("/", "./public/dist")
-	//ws := websocket.New(websocket.Config{})
-	todosRouter := r.Party("/players/{name}", PlayersHandler)
-	todosRouter.Any("/iris-ws.js", websocket.ClientHandler())
-	r.Run(iris.Addr(":8080"))
-}
-
-func GetMatches(api *gopubg.API, playerName string) []*funstats.SQLMatch {
-	players, err := api.RequestSinglePlayerByName("steam", playerName)
+	app := iris.Default()
+	var err error
+	DBConn, err = sql.Open("mysql", "root:root@tcp(127.0.0.1:3307)/pubg_fun_stats?parseTime=true")
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err)
+		os.Exit(1)
 	}
-	var response []*funstats.SQLMatch
-	for _, p := range players {
-		response = controllers.ProcessMatches(ConcurencyLevel, api, p.Matches)
+	err = DBConn.Ping()
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
 	}
-	return response
-}
-
-func PlayersHandler(ctx iris.Context) {
-	ctx.JSON(iris.Map{
-		"data": GetMatches(API, ctx.Params().Get("name")),
-	})
+	defer DBConn.Close()
+	mvc.Configure(app.Party("/api/players/{name}"), match)
+	app.StaticWeb("/", "./public/dist")
+	app.Run(iris.Addr(":8080"))
 }
