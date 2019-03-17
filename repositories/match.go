@@ -3,15 +3,13 @@ package repositories
 import (
 	"database/sql"
 	"fmt"
-	"pubg-fun-stats/models"
+	"pubg-fun-stats/parser/models/match"
 )
 
 type MatchRepository interface {
-	Fetch(lim int64) ([]*models.Match, error)
-	FetchByIDs(matchIDs string) (map[string]*models.Match, error)
-	//GetByID(id string) (*models.Match, error)
-	Store(match *models.Match) error
-	//StoreMany(matches []*models.Match) (string, error)
+	Fetch(lim int64) ([]*match.Match, error)
+	FetchByIDs(matchIDs string) (map[string]*match.Match, error)
+	Store(match *match.Match) error
 }
 
 type matchSQLRepository struct {
@@ -22,18 +20,18 @@ func NewMatchSQLRepository(conn *sql.DB) MatchRepository {
 	return &matchSQLRepository{conn}
 }
 
-func (msr *matchSQLRepository) Fetch(lim int64) ([]*models.Match, error) {
+func (msr *matchSQLRepository) Fetch(lim int64) ([]*match.Match, error) {
 	query := "SELECT match_id, map_name, created_at, duration, game_mode FROM `match`"
 	rows, err := msr.Conn.Query(query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	result := make([]*models.Match, 0)
+	result := make([]*match.Match, 0)
 	for rows.Next() {
-		t := new(models.Match)
+		t := new(match.Match)
 		err = rows.Scan(
-			&t.MatchID,
+			&t.ID,
 			&t.MapName,
 			&t.CreatedAt,
 			&t.Duration,
@@ -47,29 +45,27 @@ func (msr *matchSQLRepository) Fetch(lim int64) ([]*models.Match, error) {
 	return result, nil
 }
 
-func (msr *matchSQLRepository) Store(match *models.Match) error {
-	_, err := msr.Conn.Exec("INSERT IGNORE INTO `match` SET `match_id` = ?, `shard_id` = ?, `created_at` = ?, `duration` = ?, `game_mode` = ?, `map_name` = ?",
-		match.MatchID, match.ShardID, match.CreatedAt, match.Duration, match.GameMode, match.MapName)
+func (msr *matchSQLRepository) Store(m *match.Match) error {
+	_, err := msr.Conn.Exec("INSERT IGNORE INTO `match` SET `id` = ?, `created_at` = ?, `duration` = ?, `game_mode` = ?, `map_name` = ?",
+		m.ID, m.CreatedAt, m.Duration, m.GameMode, m.MapName)
 	if err != nil {
-		panic(err.Error())
 		return err
 	}
 	return nil
 }
 
-func (msr *matchSQLRepository) FetchByIDs(matchIDs string) (map[string]*models.Match, error) {
-	query := "SELECT * FROM `match` where match_id IN (%s)"
+func (msr *matchSQLRepository) FetchByIDs(matchIDs string) (map[string]*match.Match, error) {
+	query := "SELECT * FROM `match` where id IN (%s)"
 	rows, err := msr.Conn.Query(fmt.Sprintf(query, matchIDs))
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	result := make(map[string]*models.Match, 0)
+	result := make(map[string]*match.Match, 0)
 	for rows.Next() {
-		m := new(models.Match)
+		m := new(match.Match)
 		err = rows.Scan(
-			&m.MatchID,
-			&m.ShardID,
+			&m.ID,
 			&m.CreatedAt,
 			&m.Duration,
 			&m.GameMode,
@@ -78,7 +74,7 @@ func (msr *matchSQLRepository) FetchByIDs(matchIDs string) (map[string]*models.M
 		if err != nil {
 			return nil, err
 		}
-		result[m.MatchID] = m
+		result[m.ID] = m
 	}
 	return result, nil
 }

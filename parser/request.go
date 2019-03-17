@@ -1,0 +1,54 @@
+package gopubg
+
+import (
+	"bytes"
+	"compress/gzip"
+	"fmt"
+	"github.com/sirupsen/logrus"
+	"io"
+	"net/http"
+)
+
+//httpsRequest A helper function for making an http request to url, with key api key
+func httpRequest(url, key string) (*bytes.Buffer, error) {
+	logrus.WithField("url", url).Info("pubg api request")
+	// Create request
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set request options
+	req.Header.Set("Authorization", key)
+	req.Header.Set("Accept", "application/vnd.api+json")
+	req.Header.Set("Accept-Encoding", "gzip")
+
+	// Execute request
+	client := &http.Client{}
+	response, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("HTTP request failed: %s", err)
+	}
+	// Check http response code
+	if response.StatusCode != 200 {
+		response.Body.Close()
+		return nil, fmt.Errorf("HTTP request failed: %s", response.Status)
+	}
+	// Retrieve response body
+	var reader io.ReadCloser
+	switch response.Header.Get("Content-Encoding") {
+	case "gzip":
+		reader, err = gzip.NewReader(response.Body)
+		if err != nil {
+			return nil, err
+		}
+	default:
+		reader = response.Body
+	}
+	defer reader.Close()
+
+	var buffer bytes.Buffer
+	buffer.ReadFrom(reader)
+
+	return &buffer, nil
+}

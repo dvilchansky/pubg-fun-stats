@@ -2,37 +2,22 @@ package main
 
 import (
 	"database/sql"
-	"github.com/dvilchansky/gopubg"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/mvc"
 	"log"
 	"os"
-	"pubg-fun-stats/controllers"
+	"pubg-fun-stats/parser"
 	"pubg-fun-stats/repositories"
-	"pubg-fun-stats/services"
 	"pubg-fun-stats/settings"
+	"pubg-fun-stats/web/controllers"
+	"pubg-fun-stats/web/services"
 )
 
 var (
 	API    = gopubg.NewAPI(settings.API_KEY)
 	DBConn *sql.DB
 )
-
-func match(app *mvc.Application) {
-	repo := repositories.NewMatchSQLRepository(DBConn)
-	matchService := services.NewMatchService(repo, API)
-	app.Register(matchService)
-	app.Handle(new(controllers.MatchController))
-}
-
-//func GetMatches(api *gopubg.API, playerName string) []*funstats.SQLMatch {
-//	player, err := api.RequestPlayerByName(playerName)
-//	if err != nil {
-//		panic(err.Error())
-//	}
-//	return controllers.ProcessMatches(ConcurencyLevel, api, player.Matches)
-//}
 
 func main() {
 	app := iris.Default()
@@ -51,4 +36,12 @@ func main() {
 	mvc.Configure(app.Party("/api/players/{name}"), match)
 	app.StaticWeb("/", "./public/dist")
 	app.Run(iris.Addr(":8080"))
+}
+
+// Match handler
+func match(app *mvc.Application) {
+	repo := repositories.NewMatchSQLRepository(DBConn)
+	matchService := services.NewMatchService(repo, API)
+	app.Register(matchService)
+	app.Handle(new(controllers.MatchController))
 }
