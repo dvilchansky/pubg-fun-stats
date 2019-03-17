@@ -12,7 +12,7 @@ type MatchController struct {
 func (c *MatchController) Post(ctx iris.Context) {
 	userName := ctx.Params().Get("name")
 	if userName != "" {
-		matches, err := c.Service.RequestPlayerMatches(userName)
+		matches, err := c.Service.RequestPlayerMatches(userName, 10)
 		if err != nil {
 			panic(err.Error())
 		}
