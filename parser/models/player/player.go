@@ -2,23 +2,21 @@ package player
 
 import (
 	"errors"
+	"github.com/slemgrim/jsonapi"
 	"io"
 	"reflect"
-	"time"
-
-	"github.com/slemgrim/jsonapi"
 )
 
 // Player structure represents a player entry
 type Player struct {
-	ID           string    `jsonapi:"primary,player"`
-	Name         string    `jsonapi:"attr,name"`
-	ShardID      string    `jsonapi:"attr,shardId"`
-	CreatedAt    time.Time `jsonapi:"attr,createdAt,iso8601"`
-	UpdatedAt    time.Time `jsonapi:"attr,updatedAt,iso8601"`
-	PatchVersion string    `jsonapi:"attr,patchVersion"`
-	TitleID      string    `jsonapi:"attr,titleId"`
-	Matches      []*Match  `jsonapi:"relation,matches"`
+	ID   string `jsonapi:"primary,player"`
+	Name string `jsonapi:"attr,name"`
+	//ShardID      string    `jsonapi:"attr,shardId"`
+	//CreatedAt    time.Time `jsonapi:"attr,createdAt,iso8601"`
+	//UpdatedAt    time.Time `jsonapi:"attr,updatedAt,iso8601"`
+	//PatchVersion string    `jsonapi:"attr,patchVersion"`
+	//TitleID      string    `jsonapi:"attr,titleId"`
+	Matches []*Match `jsonapi:"relation,matches"`
 }
 
 // Match structure represent data related to a PUBG match

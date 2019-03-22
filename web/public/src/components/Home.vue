@@ -2,7 +2,7 @@
     <div class="row justify-content-center">
         <div class="col-sm-6">
             <h1>PUBG FUN STATS</h1>
-            <b-input-group size="lg" prepend="Username" class="mt-3">
+            <b-input-group prepend="Username" class="mt-3">
                 <b-form-input v-model="username"/>
                 <b-input-group-append>
                     <b-button @click="getMatches" variant="outline-success">Search</b-button>
@@ -21,26 +21,48 @@
                     <th>Map</th>
                     <th>Roster</th>
                     <th></th>
+                    <th></th>
                 </tr>
-                <tr v-for="m in matches" v-bind:key="m.ID">
+                <tr v-for="m in matches">
                     <td>
                         <span class="badge badge-secondary">{{ m.GameMode }}</span>
                     </td>
                     <td>
-                        #{{ participants[m.ID].Stats.WinPlace }}/{{ m.Rosters.length }}<br>
-                        <span v-if="participants[m.ID].Stats.WinPlace == 1" class="badge badge-warning">Winner!</span>
+                        #{{ player[m.ID].Stats.WinPlace }}/{{ m.Rosters.length }}<br>
+                        <span v-if="player[m.ID].Stats.WinPlace == 1" class="badge badge-warning">Winner!</span>
                     </td>
-                    <td>{{ Math.floor(participants[m.ID].Stats.TimeSurvived / 60)}} minutes</td>
-                    <td>{{ participants[m.ID].Stats.Kills }}</td>
-                    <td>{{ parseInt(participants[m.ID].Stats.DamageDealt) }}</td>
+                    <td>{{ Math.floor(player[m.ID].Stats.TimeSurvived / 60)}} minutes</td>
+                    <td>{{ player[m.ID].Stats.Kills }}</td>
+                    <td>{{ parseInt(player[m.ID].Stats.DamageDealt) }}</td>
                     <td>{{ new Date(m.CreatedAt).toDateString() }}</td>
                     <td>{{ mapNames[m.MapName] }}</td>
                     <td>
-                        <span v-for="p in rosters[m.ID].Participants" v-bind:key="p.ID">{{ p.Stats.Name }}<br></span>
+                        <span v-for="p in rosters[m.ID].Participants">{{ p.Stats.Name }}<br></span>
                     </td>
                     <td>
-                        <b-button variant="outline-success">more</b-button>
+                        <b-button v-b-modal="'modal'+m.ID">More</b-button>
                     </td>
+                    <td>
+                        <b-button v-b-modal="'modal'+m.ID">Kill Stats</b-button>
+                    </td>
+                    <b-modal :id="'modal'+m.ID" title="BootstrapVue">
+                        <table class="table table-striped table-bordered" v-if="matches.length" v-cloak>
+                            <tr>
+                                <th>Name</th>
+                                <th>Place</th>
+                                <th>Time Survived</th>
+                                <th>Kill</th>
+                                <th>Damage</th>
+                            </tr>
+                            <tr v-for="p in participants[m.ID]">
+                                <td>{{ p.Stats.Name }}</td>
+                                <td>{{ p.Stats.WinPlace }}</td>
+                                <td>{{ Math.floor(p.Stats.TimeSurvived / 60)}} minutes</td>
+                                <td>{{ p.Stats.Kills }}</td>
+                                <td>{{ parseInt(p.Stats.DamageDealt) }}</td>
+                            </tr>
+                        </table>
+                    </b-modal>
                 </tr>
             </table>
         </div>
@@ -61,7 +83,9 @@
                     "Savage_Main": "Sanhok"
                 },
                 rosters: {},
+                player: {},
                 participants: {},
+                telemetry: {},
                 matches: [],
                 username: ''
             }
@@ -76,14 +100,26 @@
                             m.Rosters.forEach((r) => {
                                 r.Participants.forEach((p) => {
                                     if (p.Stats.Name === this.username) {
-                                        this.participants[m.ID] = p;
+                                        this.player[m.ID] = p;
                                         this.rosters[m.ID] = r;
                                     }
+                                    if (!this.participants[m.ID]) {
+                                        this.participants[m.ID] = []
+                                    }
+                                    this.participants[m.ID].push(p)
                                 })
                             })
                         })
                     }
                     return this.matches;
+                }
+            },
+            getTelemetry: async function (url) {
+                if (url) {
+                    let t = (await axios.get('api/telemetry/', {
+                        params: {endpointURL: url}
+                    })).data.data;
+                    this.telemetry[t.MatchID] = t;
                 }
             }
         }

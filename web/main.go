@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/mvc"
@@ -15,33 +16,36 @@ import (
 )
 
 var (
-	API    = gopubg.NewAPI(settings.API_KEY)
-	DBConn *sql.DB
+	API = gopubg.NewAPI(settings.API_KEY)
+	DB  *sql.DB
 )
 
 func main() {
 	app := iris.Default()
 	var err error
-	DBConn, err = sql.Open("mysql", "root:root@tcp(127.0.0.1:3307)/pubg_fun_stats?parseTime=true")
+	DB, err = sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
+		settings.DB_USER, settings.DB_PASSWORD, settings.DB_HOST, settings.DB_PORT, settings.DB_NAME))
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)
 	}
-	err = DBConn.Ping()
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
-	defer DBConn.Close()
+	defer DB.Close()
 	mvc.Configure(app.Party("/api/players/{name}"), match)
+	mvc.Configure(app.Party("/api/telemetry/"), telemetry)
 	app.StaticWeb("/", "./public/dist")
 	app.Run(iris.Addr(":8080"))
 }
 
 // Match handler
 func match(app *mvc.Application) {
-	repo := repositories.NewMatchSQLRepository(DBConn)
-	matchService := services.NewMatchService(repo, API)
+	matchService := services.NewMatchService(repositories.NewMatchSQLRepository(DB), API)
 	app.Register(matchService)
 	app.Handle(new(controllers.MatchController))
+}
+
+// Match handler
+func telemetry(app *mvc.Application) {
+	telemetryService := services.NewTelemetryService(repositories.NewTelemetrySQLRepository(DB), API)
+	app.Register(telemetryService)
+	app.Handle(new(controllers.TelemetryController))
 }

@@ -5,7 +5,6 @@ import (
 	"pubg-fun-stats/parser/models/match"
 	"pubg-fun-stats/parser/models/player"
 	"pubg-fun-stats/repositories"
-	"runtime"
 	"strings"
 	"sync"
 )
@@ -18,8 +17,8 @@ type MatchService interface {
 
 func NewMatchService(repo repositories.MatchRepository, api *gopubg.API) MatchService {
 	return &matchService{
-		api:  api,
 		repo: repo,
+		api:  api,
 	}
 }
 
@@ -55,7 +54,7 @@ func (ms *matchService) RequestPlayerMatches(userName string, lim int) ([]*match
 	if err != nil {
 		return nil, err
 	}
-	concurencyLevel := runtime.NumCPU() * 8
+	concurencyLevel := /*runtime.NumCPU() * 8*/ 20
 	var wg sync.WaitGroup
 	lenM := len(p.Matches)
 	for i := -1; i < lenM; {

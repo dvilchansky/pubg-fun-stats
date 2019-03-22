@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"os"
 	"reflect"
 )
 
@@ -452,9 +451,10 @@ func (t *Telemetry) getPlayer(name, accountID string) *Player {
 }
 
 func (t *Telemetry) addPlayerEvent(te *Event, character *Character, matchStarted bool) {
-	if character == nil || character.Name != os.Args[1] {
+	if character == nil || character.Name == "" {
 		return
 	}
+	fmt.Println(character.Name)
 	player := t.getPlayer(character.Name, character.AccountID)
 	if matchStarted {
 		player.Events = append(player.Events, te)
