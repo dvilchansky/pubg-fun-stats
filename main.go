@@ -6,29 +6,36 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/mvc"
-	"log"
-	"os"
+	"github.com/spf13/viper"
 	"pubg-fun-stats/parser"
 	"pubg-fun-stats/repositories"
-	"pubg-fun-stats/settings"
 	"pubg-fun-stats/web/controllers"
 	"pubg-fun-stats/web/services"
 )
 
+func init() {
+	viper.SetConfigFile(`config.json`)
+	viper.SetConfigFile(`config.json`)
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic(err)
+	}
+	API = gopubg.NewAPI(viper.GetString(`pubg-api.key`))
+	DB, err = sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
+		viper.GetString(`database.user`),
+		viper.GetString(`database.pass`),
+		viper.GetString(`database.host`),
+		viper.GetString(`database.port`),
+		viper.GetString(`database.name`)))
+}
+
 var (
-	API = gopubg.NewAPI(settings.API_KEY)
+	API *gopubg.API
 	DB  *sql.DB
 )
 
 func main() {
 	app := iris.Default()
-	var err error
-	DB, err = sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
-		settings.DB_USER, settings.DB_PASSWORD, settings.DB_HOST, settings.DB_PORT, settings.DB_NAME))
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
 	defer DB.Close()
 	mvc.Configure(app.Party("/api/players/{name}"), match)
 	mvc.Configure(app.Party("/api/telemetry/"), telemetry)

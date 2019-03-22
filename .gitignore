@@ -1,8 +1,8 @@
 *.iml
 .idea
 main
-settings/main.go
 docker
 node_modules
 tmp
 main
+config.json

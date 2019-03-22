@@ -1,0 +1,12 @@
+{
+  "pubg-api": {
+    "key": ""
+  },
+  "database": {
+    "host": "mysql",
+    "port": "3307",
+    "user": "",
+    "pass": "",
+    "name": ""
+  }
+}

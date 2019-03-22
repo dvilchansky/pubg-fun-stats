@@ -1,3 +1,5 @@
+Rename `config.example.json` to `config.json` and edit the configuration
+
 Install the dependencies
 
     go get -u ./...
