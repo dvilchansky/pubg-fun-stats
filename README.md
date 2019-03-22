@@ -9,3 +9,11 @@ Start the Database
 Run the Application
 
     go run main.go
+    
+Build the Application
+    
+    go build main.go
+    
+After that you can simply execute the binary
+
+    ./main
