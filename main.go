@@ -32,7 +32,7 @@ func main() {
 	defer DB.Close()
 	mvc.Configure(app.Party("/api/players/{name}"), match)
 	mvc.Configure(app.Party("/api/telemetry/"), telemetry)
-	app.StaticWeb("/", "./public/dist")
+	app.StaticWeb("/", "./web/public/dist")
 	app.Run(iris.Addr(":8080"))
 }
 
