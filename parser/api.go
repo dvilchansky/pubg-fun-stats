@@ -60,9 +60,7 @@ func (a *API) RequestMatch(matchID string) (*match.Match, error) {
 	if err != nil {
 		return nil, err
 	}
-	m, err := match.ParseMatch(buffer)
-
-	return m, nil
+	return match.ParseMatch(buffer)
 }
 
 //RequestMatch given a shard and a match_id string will print either match info, or a error
@@ -71,10 +69,5 @@ func (a *API) RequestTelemetry(endpointURL string) (*telemetry.Telemetry, error)
 	if err != nil {
 		return nil, err
 	}
-	t, err := telemetry.ParseTelemetry(buffer)
-	if err != nil {
-		return nil, err
-	}
-
-	return t, nil
+	return telemetry.ParseTelemetry(buffer)
 }
