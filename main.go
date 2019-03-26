@@ -37,6 +37,8 @@ func main() {
 		return
 	}
 	fmt.Println("Bot is running")
+	<-make(chan struct{})
+	return
 }
 
 func MessageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
