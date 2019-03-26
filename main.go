@@ -1,48 +1,42 @@
 package main
 
 import (
-	"database/sql"
+	"fmt"
+	"github.com/bwmarrin/discordgo"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/kataras/iris"
-	"github.com/kataras/iris/cache"
-	"github.com/kataras/iris/mvc"
+	"github.com/labstack/gommon/log"
 	"os"
 	"pubg-fun-stats/parser"
-	"pubg-fun-stats/repositories"
-	"pubg-fun-stats/web/controllers"
-	"pubg-fun-stats/web/services"
-	"time"
 )
 
 func init() {
-	API = gopubg.NewAPI(os.Getenv(`PUBGAPIKEY`))
+	API = gopubg.NewAPI(os.Getenv(`PUBG_API_KEY`))
 }
 
 var (
-	API          *gopubg.API
-	DB           *sql.DB
-	CacheHandler = cache.Handler(30 * time.Minute)
+	API *gopubg.API
 )
 
 func main() {
-	app := iris.Default()
-	mvc.Configure(app.Party("/api/players/{name}"), match)
-	mvc.Configure(app.Party("/api/telemetry/"), telemetry)
-	app.Run(iris.Addr(":" + os.Getenv("PORT")))
+	dg, err := discordgo.New("Bot " + "DISCORD_TOKEN")
+	if err != nil {
+		log.Fatal(err.Error())
+		return
+	}
+	//u, err := dg.User("@me")
+	if err != nil {
+		log.Fatal(err.Error())
+		return
+	}
+	dg.AddHandler(MessageHandler)
+	err = dg.Open()
+	if err != nil {
+		log.Fatal(err.Error())
+		return
+	}
+	fmt.Println("Bot is running")
 }
 
-// Match handler
-func match(app *mvc.Application) {
-	app.Router.Use(CacheHandler)
-	matchService := services.NewMatchService(repositories.NewMatchSQLRepository(DB), API)
-	app.Register(matchService)
-	app.Handle(new(controllers.MatchController))
-}
-
-// Match handler
-func telemetry(app *mvc.Application) {
-	app.Router.Use(CacheHandler)
-	telemetryService := services.NewTelemetryService(repositories.NewTelemetrySQLRepository(DB), API)
-	app.Register(telemetryService)
-	app.Handle(new(controllers.TelemetryController))
+func MessageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
+	fmt.Println(m.Content)
 }
