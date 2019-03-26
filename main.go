@@ -19,7 +19,7 @@ var (
 )
 
 func main() {
-	dg, err := discordgo.New("Bot " + "DISCORD_TOKEN")
+	dg, err := discordgo.New("Bot " + os.Getenv("DISCORD_TOKEN"))
 	if err != nil {
 		log.Fatal(err.Error())
 		return
