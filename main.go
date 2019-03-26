@@ -6,7 +6,7 @@ import (
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/cache"
 	"github.com/kataras/iris/mvc"
-	"github.com/spf13/viper"
+	"os"
 	"pubg-fun-stats/parser"
 	"pubg-fun-stats/repositories"
 	"pubg-fun-stats/web/controllers"
@@ -15,13 +15,7 @@ import (
 )
 
 func init() {
-	viper.SetConfigFile(`config.json`)
-	viper.SetConfigFile(`config.json`)
-	err := viper.ReadInConfig()
-	if err != nil {
-		panic(err)
-	}
-	API = gopubg.NewAPI(viper.GetString(`pubg-api.key`))
+	API = gopubg.NewAPI(os.Getenv(`PUBGAPIKEY`))
 }
 
 var (
@@ -34,7 +28,6 @@ func main() {
 	app := iris.Default()
 	mvc.Configure(app.Party("/api/players/{name}"), match)
 	mvc.Configure(app.Party("/api/telemetry/"), telemetry)
-	app.StaticWeb("/", "./web/public/dist")
 	app.Run(iris.Addr(":8080"))
 }
 

@@ -1,5 +1,7 @@
 *.iml
 .idea
+.env
+pubg-fun-stats
 main
 docker
 node_modules
