@@ -28,7 +28,7 @@ func main() {
 	app := iris.Default()
 	mvc.Configure(app.Party("/api/players/{name}"), match)
 	mvc.Configure(app.Party("/api/telemetry/"), telemetry)
-	app.Run(iris.Addr(":8080"))
+	app.Run(iris.Addr(":" + os.Getenv("PORT")))
 }
 
 // Match handler
