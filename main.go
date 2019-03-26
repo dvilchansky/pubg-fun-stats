@@ -14,7 +14,8 @@ func init() {
 }
 
 var (
-	API *gopubg.API
+	API   *gopubg.API
+	BotID string
 )
 
 func main() {
@@ -23,7 +24,8 @@ func main() {
 		log.Fatal(err.Error())
 		return
 	}
-	//u, err := dg.User("@me")
+	u, err := dg.User("@me")
+	BotID = u.ID
 	if err != nil {
 		log.Fatal(err.Error())
 		return
@@ -38,5 +40,10 @@ func main() {
 }
 
 func MessageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
-	fmt.Println(m.Content)
+	if m.Author.ID == BotID {
+		return
+	}
+	if m.Content == "ping" {
+		_, _ = s.ChannelMessageSend(m.ChannelID, "pong")
+	}
 }
