@@ -22,12 +22,6 @@ func init() {
 		panic(err)
 	}
 	API = gopubg.NewAPI(viper.GetString(`pubg-api.key`))
-	//DB, err = sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
-	//	viper.GetString(`database.user`),
-	//	viper.GetString(`database.pass`),
-	//	viper.GetString(`database.host`),
-	//	viper.GetString(`database.port`),
-	//	viper.GetString(`database.name`)))
 }
 
 var (
@@ -38,7 +32,6 @@ var (
 
 func main() {
 	app := iris.Default()
-	//defer DB.Close()
 	mvc.Configure(app.Party("/api/players/{name}"), match)
 	mvc.Configure(app.Party("/api/telemetry/"), telemetry)
 	app.StaticWeb("/", "./web/public/dist")
