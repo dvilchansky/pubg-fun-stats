@@ -38,7 +38,7 @@ func main() {
 	mvc.Configure(app.Party(`/api/players/{name}`), match)
 	mvc.Configure(app.Party(`/api/telemetry/`), telemetry)
 	app.StaticWeb("/", `./web/public/dist`)
-	app.Run(iris.Addr(os.Getenv(`PORT`)))
+	app.Run(iris.Addr(`:` + os.Getenv(`PORT`)))
 }
 
 // Match handler
