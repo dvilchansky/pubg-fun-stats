@@ -1,8 +1,10 @@
 *.iml
 .idea
+.env
 main
 docker
 node_modules
 tmp
 main
 config.json
+pubg-fun-stats

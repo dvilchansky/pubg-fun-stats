@@ -6,7 +6,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/mvc"
-	"github.com/spf13/viper"
+	"os"
 	"pubg-fun-stats/parser"
 	"pubg-fun-stats/repositories"
 	"pubg-fun-stats/web/controllers"
@@ -14,19 +14,17 @@ import (
 )
 
 func init() {
-	viper.SetConfigFile(`config.json`)
-	viper.SetConfigFile(`config.json`)
-	err := viper.ReadInConfig()
-	if err != nil {
-		panic(err)
-	}
-	API = gopubg.NewAPI(viper.GetString(`pubg-api.key`))
+	API = gopubg.NewAPI(os.Getenv(`PUBG_API_KEY`))
+	var err error
 	DB, err = sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
-		viper.GetString(`database.user`),
-		viper.GetString(`database.pass`),
-		viper.GetString(`database.host`),
-		viper.GetString(`database.port`),
-		viper.GetString(`database.name`)))
+		os.Getenv(`DB_USER`),
+		os.Getenv(`DB_PASS`),
+		os.Getenv(`DB_HOST`),
+		os.Getenv(`DB_PORT`),
+		os.Getenv(`DB_NAME`)))
+	if err != nil {
+		panic(err.Error())
+	}
 }
 
 var (
