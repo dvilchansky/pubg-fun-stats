@@ -5,12 +5,14 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/kataras/iris"
+	"github.com/kataras/iris/cache"
 	"github.com/kataras/iris/mvc"
 	"os"
 	"pubg-fun-stats/parser"
 	"pubg-fun-stats/repositories"
 	"pubg-fun-stats/web/controllers"
 	"pubg-fun-stats/web/services"
+	"time"
 )
 
 func init() {
@@ -28,8 +30,9 @@ func init() {
 }
 
 var (
-	API *gopubg.API
-	DB  *sql.DB
+	API          *gopubg.API
+	DB           *sql.DB
+	CacheHandler = cache.Handler(30 * time.Minute)
 )
 
 func main() {
@@ -43,6 +46,7 @@ func main() {
 
 // Match handler
 func match(app *mvc.Application) {
+	app.Router.Use(CacheHandler)
 	matchService := services.NewMatchService(repositories.NewMatchSQLRepository(DB), API)
 	app.Register(matchService)
 	app.Handle(new(controllers.MatchController))
@@ -50,6 +54,7 @@ func match(app *mvc.Application) {
 
 // Match handler
 func telemetry(app *mvc.Application) {
+	app.Router.Use(CacheHandler)
 	telemetryService := services.NewTelemetryService(repositories.NewTelemetrySQLRepository(DB), API)
 	app.Register(telemetryService)
 	app.Handle(new(controllers.TelemetryController))
