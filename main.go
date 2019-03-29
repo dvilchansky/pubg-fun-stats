@@ -16,7 +16,7 @@ import (
 func init() {
 	API = gopubg.NewAPI(os.Getenv(`PUBG_API_KEY`))
 	var err error
-	DB, err = sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
+	DB, err = sql.Open("mysql", fmt.Sprintf(`%s:%s@tcp(%s:%s)/%s?parseTime=true`,
 		os.Getenv(`DB_USER`),
 		os.Getenv(`DB_PASS`),
 		os.Getenv(`DB_HOST`),
@@ -35,10 +35,10 @@ var (
 func main() {
 	app := iris.Default()
 	defer DB.Close()
-	mvc.Configure(app.Party("/api/players/{name}"), match)
-	mvc.Configure(app.Party("/api/telemetry/"), telemetry)
-	app.StaticWeb("/", "./web/public/dist")
-	app.Run(iris.Addr(":8080"))
+	mvc.Configure(app.Party(`/api/players/{name}`), match)
+	mvc.Configure(app.Party(`/api/telemetry/`), telemetry)
+	app.StaticWeb("/", `./web/public/dist`)
+	app.Run(iris.Addr(os.Getenv(`PORT`)))
 }
 
 // Match handler
