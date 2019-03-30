@@ -13,7 +13,12 @@ type MatchController struct {
 func (c *MatchController) Get(ctx iris.Context) {
 	userName := ctx.Params().Get("name")
 	if userName != "" {
-		matches, err := c.Service.RequestPlayerMatches(userName, 20)
+		matches, err := c.Service.RequestPlayerMatches(userName, 10)
+		if err != nil {
+			_, _ = ctx.JSON(iris.Map{
+				"data": matches,
+			})
+		}
 		sort.Slice(matches, func(i, j int) bool {
 			return matches[i].CreatedAt.After(matches[j].CreatedAt)
 		})
